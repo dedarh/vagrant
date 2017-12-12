@@ -23,7 +23,7 @@ sudo service jenkins restart
 echo "Success"
 
 sudo cp /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar /usr/bin/jenkins-cli.jar
-sudo chmod +x /usr/bin/jenkins-cli.jar
+sudo chmod 777 /usr/bin/jenkins-cli.jar
 
 #cd /usr/bin/
 #sudo touch config.xml
@@ -92,19 +92,18 @@ sudo cat> /var/lib/jenkins/config.xml << "EOF"
 EOF
 
 sudo service jenkins restart
-
-
-
-
-
-
-
+echo "Sleep"
+sleep 30s
+echo "End"
+echo "plugin install"
 java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin git
-sudo service jenkins restart
 java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin git-client
 sudo service jenkins restart
 
-echo "plugin install"
+echo "Sleep"
+sleep 30s
+echo "End"
+
 cd /usr/bin/
 sudo touch compile.xml
 sudo touch deploy.xml
@@ -167,7 +166,7 @@ sudo cat> deploy.xml << "EOF"
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>workspace\petClinic_compile</customWorkspace>
+  <customWorkspace>workspace/compile</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
       <command>./mvnw spring-boot:run &amp;
@@ -194,7 +193,7 @@ sudo cat> test.xml << "EOF"
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>workspace/petClinic_compile</customWorkspace>
+  <customWorkspace>workspace/compile</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
       <command>mvn test</command>
@@ -205,11 +204,14 @@ sudo cat> test.xml << "EOF"
 </project>
 EOF
 
+echo "Sleep"
+sleep 30s
+echo "End"
 
 echo "Job created"
- java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job compile < /usr/bin/compile.xml
- java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job deploy < /usr/bin/deploy.xml
- java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job test < /usr/bin/test.xml
+ sudo java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job compile < /usr/bin/compile.xml
+ sudo java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job deploy < /usr/bin/deploy.xml
+ sudo java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job test < /usr/bin/test.xml
  echo "Job install"
  sudo service jenkins restart
  echo "Success 2"
