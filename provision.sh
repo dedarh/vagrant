@@ -169,9 +169,7 @@ sudo cat> deploy.xml << "EOF"
   <customWorkspace>workspace/compile</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
-      <command>./mvnw spring-boot:run &amp;
-sleep 3m
-kill `lsof -t -i:8080`</command>
+      <command>./mvnw spring-boot:run -Drun.jvmArguments=-Dserver.port=8085</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
