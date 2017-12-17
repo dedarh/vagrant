@@ -1,0 +1,13 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#7e843e957cd0bc35d934b364
+
+Vagrant.configure("2") do |config|
+ config.vm.box = "ubuntu/xenial64"
+ config.vm.provider "virtualbox" do |vb|
+   vb.memory = "1024"
+ end
+ config.vm.provision "shell" do |s|
+    s.path = "provision2.sh"
+  end
+end
