@@ -1,0 +1,35 @@
+---
+    - name: Update_jenkins
+      shell: wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add - 
+      become: true
+    - name: Update_jenkinsk 2
+      shell: echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+      become: true
+    - name: Update_jenkinsk 2
+      shell: apt-get update && apt-get install -y jenkins
+      become: true	
+    - name: Update_jenkinsk 3
+      shell: cp /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar /usr/bin/jenkins-cli.jar && chmod 777 /usr/bin/jenkins-cli.jar
+      become: true	  	  
+    - include: jenkins_restart.yml
+    - include: jenkins_sleep.yml
+    - name: Create new user dedarh
+      shell: echo "jenkins.model.Jenkins.instance.securityRealm.createAccount('dedarh', '9248592485')" | java -jar /usr/bin/jenkins-cli.jar -s http://52.191.214.147:8080/ groovy = --username admin --password $(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)
+      become: true	
+    - include: jenkins_restart.yml
+    - include: jenkins_sleep.yml
+    - name: jenkins git
+      shell: java -jar /usr/bin/jenkins-cli.jar -s http://52.191.214.147:8080/ install-plugin git --username admin --password $(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) && java -jar /usr/bin/jenkins-cli.jar -s http://52.191.214.147:8080/ install-plugin git-client --username admin --password $(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)
+      become: true	  
+    - include: jenkins_restart.yml
+    - include: jenkins_sleep.yml
+    - name: job created 
+      shell: cd /usr/bin/ && wget https://www.dropbox.com/s/u05i4xa2cuzkk3g/compile.xml && wget https://www.dropbox.com/s/m0qr02y1yvjinhw/deploy.xml && wget https://www.dropbox.com/s/9whsk4wbb9c7w1d/test.xml
+      become: true	
+    - name: job sleep 
+      shell: sleep 10s
+      become: true	  
+    - name: job add 
+      shell: java -jar /usr/bin/jenkins-cli.jar -s http://52.191.214.147:8080 create-job compile --username dedarh --password 9248592485 < /usr/bin/compile.xml && java -jar /usr/bin/jenkins-cli.jar -s http://52.191.214.147:8080 create-job deploy --username dedarh --password 9248592485 < /usr/bin/deploy.xml && java -jar /usr/bin/jenkins-cli.jar -s http://52.191.214.147:8080 create-job test --username dedarh --password 9248592485 < /usr/bin/test.xml
+      become: true	
+    - include: jenkins_restart.yml

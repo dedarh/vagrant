@@ -23,87 +23,13 @@ sudo service jenkins restart
 echo "Success"
 
 sudo cp /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar /usr/bin/jenkins-cli.jar
-sudo chmod 777 /usr/bin/jenkins-cli.jar
+sudo chmod +x /usr/bin/jenkins-cli.jar
 
-#cd /usr/bin/
-#sudo touch config.xml
-
-
-
-
-sudo rm /var/lib/jenkins/config.xml
-sudo touch /var/lib/jenkins/config.xml
-sudo chmod 777 /var/lib/jenkins/config.xml
-
-
-sudo cat> /var/lib/jenkins/config.xml << "EOF"
-<?xml version='1.0' encoding='UTF-8'?>
-<hudson>
-  <disabledAdministrativeMonitors/>
-  <version>2.73.3</version>
-  <numExecutors>2</numExecutors>
-  <mode>NORMAL</mode>
-  <useSecurity>false</useSecurity>
-  <authorizationStrategy class="hudson.security.AuthorizationStrategy$Unsecured"/>
-  <securityRealm class="hudson.security.SecurityRealm$None"/>
-  <disableRememberMe>false</disableRememberMe>
-  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
-  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
-  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
-  <jdks>
-    <jdk>
-      <name>jdk8</name>
-      <home></home>
-     <properties>
-        <hudson.tools.InstallSourceProperty>
-          <installers>
-           <hudson.tools.JDKInstaller>
-              <id>jdk-8u152-oth-JPR</id>
-             <acceptLicense>true</acceptLicense>
-           </hudson.tools.JDKInstaller>
-          </installers>
-        </hudson.tools.InstallSourceProperty>
-      </properties>
-    </jdk>
-  </jdks>
-  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
-  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
-  <clouds/>
-  <quietPeriod>5</quietPeriod>
-  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
-  <views>
-    <hudson.model.AllView>
-      <owner class="hudson" reference="../../.."/>
-      <name>all</name>
-      <filterExecutors>false</filterExecutors>
-      <filterQueue>false</filterQueue>
-      <properties class="hudson.model.View$PropertyList"/>
-    </hudson.model.AllView>
-  </views>
-  <primaryView>all</primaryView>
-  <slaveAgentPort>-1</slaveAgentPort>
-  <label></label>
-  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
-    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
-  </crumbIssuer>
-  <nodeProperties/>
- <globalNodeProperties/>
-</hudson>
-EOF
-
-sudo service jenkins restart
-echo "Sleep"
-sleep 30s
-echo "End"
-echo "plugin install"
 java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin git
 java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin git-client
 sudo service jenkins restart
 
-echo "Sleep"
-sleep 30s
-echo "End"
-
+echo "plugin install"
 cd /usr/bin/
 sudo touch compile.xml
 sudo touch deploy.xml
@@ -166,10 +92,12 @@ sudo cat> deploy.xml << "EOF"
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>workspace/compile</customWorkspace>
+  <customWorkspace>workspace\petClinic_compile</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
-      <command>./mvnw spring-boot:run -Drun.jvmArguments=-Dserver.port=8085</command>
+      <command>./mvnw spring-boot:run &amp;
+sleep 3m
+kill `lsof -t -i:8080`</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
@@ -191,7 +119,7 @@ sudo cat> test.xml << "EOF"
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>workspace/compile</customWorkspace>
+  <customWorkspace>workspace/petClinic_compile</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
       <command>mvn test</command>
@@ -202,14 +130,11 @@ sudo cat> test.xml << "EOF"
 </project>
 EOF
 
-echo "Sleep"
-sleep 30s
-echo "End"
 
 echo "Job created"
- sudo java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job compile < /usr/bin/compile.xml
- sudo java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job deploy < /usr/bin/deploy.xml
- sudo java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job test < /usr/bin/test.xml
+ java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job compile < /usr/bin/compile.xml
+ java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job deploy < /usr/bin/deploy.xml
+ java -jar /usr/bin/jenkins-cli.jar -s http://127.0.0.1:8080 create-job test < /usr/bin/test.xml
  echo "Job install"
  sudo service jenkins restart
  echo "Success 2"

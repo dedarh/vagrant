@@ -1,0 +1,13 @@
+---
+- hosts: experiments
+  remote_user: artem
+  tasks:
+    - name: Install list of packages
+      apt: name={{item}} state=present
+      with_items:
+       - default-jdk
+       - default-jre
+       - git
+       - maven
+      become: true
+    - include: jenkins_install.yml

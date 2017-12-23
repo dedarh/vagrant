@@ -1,0 +1,4 @@
+---
+    - name: service jenkins restart
+      shell: service jenkins restart
+      become: true	  
