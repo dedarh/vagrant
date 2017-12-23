@@ -53,7 +53,7 @@ sudo cat> compile.xml << "EOF"
         <url>https://github.com/spring-projects/spring-petclinic.git</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
-    <branches>
+    <branches> 
       <hudson.plugins.git.BranchSpec>
         <name>*/master</name>
       </hudson.plugins.git.BranchSpec>
